@@ -1,16 +1,9 @@
-import { useState, FormEvent } from "react";
+import { useState } from "react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../../lib/firebase/firebase";
-import { collection, addDoc, serverTimestamp, Timestamp, FieldValue } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-
-interface User {
-    uid: string;
-    name: string;
-    email: string;
-    address?: string;
-    createdAt: Timestamp | FieldValue;
-}
+import { User } from "../../types/types";
 
 const Register = () => {
     const [name, setName] = useState('');
@@ -18,9 +11,11 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [address, setAddress] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState('');
+
     const navigate = useNavigate();
 
-    const handleRegister = async (e: FormEvent) => {
+    const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError(null);
         try {
@@ -40,7 +35,7 @@ const Register = () => {
 
             await addDoc(collection(db, 'users'), userData);
 
-            alert('Registration successful!');
+            setSuccess('Registration successful!');
             navigate('/');
         } catch (err: any) {
             setError(err.message);
@@ -52,12 +47,12 @@ const Register = () => {
     <>
         <div className="register-container">
             <h2>Create an Account</h2>
-            {error && <div className="error-message">{error}</div>}
 
             <form onSubmit={handleRegister}>
                 <div className="form-group">
                     <label htmlFor="name">Name</label>
-                    <input type="text"
+                    <input 
+                    type="text"
                     placeholder="Your name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -67,7 +62,8 @@ const Register = () => {
 
                 <div className="form-group">
                     <label htmlFor="email">Email</label>
-                    <input type="email"
+                    <input 
+                    type="email"
                     placeholder="Your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -77,7 +73,8 @@ const Register = () => {
 
                 <div className="form-group">
                     <label htmlFor="password">Password</label>
-                    <input type="password"
+                    <input 
+                    type="password"
                     placeholder="Create a password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -87,7 +84,8 @@ const Register = () => {
 
                 <div className="form-group">
                     <label htmlFor="address">address</label>
-                    <input type="text"
+                    <input 
+                    type="text"
                     placeholder="Your shipping address"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
@@ -95,6 +93,8 @@ const Register = () => {
                 </div>
 
                 <button type="submit" className="register-button">Register</button>
+                {error && <p className="error-message">{error}</p>}
+                {success && <p className="success-message">{success}</p>}
             </form>
         </div>
     </>
