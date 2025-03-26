@@ -3,6 +3,7 @@ import { signInWithEmailAndPassword} from "firebase/auth";
 import { auth } from "../../lib/firebase/firebase";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import '../../styles/auth-styles.css';
 
 
 const Login = () => {
@@ -20,6 +21,10 @@ const Login = () => {
             navigate('/profile')
         }
     }, [user, navigate]);
+
+    if (user) {
+        return null;
+    };
     
     const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -39,25 +44,34 @@ const Login = () => {
 
     return (
     <>
-        <div>
-            <h1>Login</h1>
+        <div className="form">
+            <h1>Welcome back</h1>
+            <h2>Please Login</h2>
+
             <form onSubmit={handleLogin}>
-                
-                <input 
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                />
-                <input 
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                />
+                <fieldset className="fieldset">
+                <legend className="legend">Login</legend>
+                    
+                    <input 
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    />
+                    
+                    <input 
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    />
+
+                </fieldset>
+
                 {error && <p className="error-message">{error}</p>}
                 {success && <p className="success-message">{success}</p>}
-                <button type="submit">Login</button>
+                
+                <button type="submit" className="button">Login</button>
             </form>
         </div>
     </>

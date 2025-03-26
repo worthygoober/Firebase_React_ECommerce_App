@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../../lib/firebase/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { User } from "../../types/types";
+import '../../styles/auth-styles.css'
 
 const Register = () => {
-    const [name, setName] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [address, setAddress] = useState('');
@@ -26,7 +27,7 @@ const Register = () => {
             );
             
             const userData: User = {
-                name,
+                displayName,
                 email,
                 address,
                 createdAt: serverTimestamp(),
@@ -35,8 +36,12 @@ const Register = () => {
 
             await addDoc(collection(db, 'users'), userData);
 
+            await updateProfile(userCredential.user, {
+                displayName: displayName,
+            });
+
             setSuccess('Registration successful!');
-            navigate('/');
+            navigate('/profile');
         } catch (err: any) {
             setError(err.message);
             console.error('Registration error:', err);
@@ -45,56 +50,54 @@ const Register = () => {
   
     return (
     <>
-        <div className="register-container">
-            <h2>Create an Account</h2>
+        <div className="form">
+            <h1>Create an Account</h1>
 
             <form onSubmit={handleRegister}>
-                <div className="form-group">
-                    <label htmlFor="name">Name</label>
-                    <input 
+                <fieldset className="fieldset">
+                <legend className="legend">Register</legend>
+
+                    <label htmlFor="name">Display Name</label>
+                    <input className="input" 
                     type="text"
                     placeholder="Your name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
                     required
                     />
-                </div>
+                
 
-                <div className="form-group">
                     <label htmlFor="email">Email</label>
-                    <input 
+                    <input className="input" 
                     type="email"
                     placeholder="Your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     />
-                </div>
 
-                <div className="form-group">
                     <label htmlFor="password">Password</label>
-                    <input 
+                    <input className="input" 
                     type="password"
                     placeholder="Create a password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     />
-                </div>
 
-                <div className="form-group">
-                    <label htmlFor="address">address</label>
-                    <input 
+                    <label htmlFor="address">Shipping Address</label>
+                    <input className="input" 
                     type="text"
-                    placeholder="Your shipping address"
+                    placeholder="Your shipping address (optional)"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     />
-                </div>
+                </fieldset>
 
-                <button type="submit" className="register-button">Register</button>
-                {error && <p className="error-message">{error}</p>}
-                {success && <p className="success-message">{success}</p>}
+                <button type="submit" className="button">Register</button>
+                
+                {error && <p className="error">{error}</p>}
+                {success && <p className="success">{success}</p>}
             </form>
         </div>
     </>
