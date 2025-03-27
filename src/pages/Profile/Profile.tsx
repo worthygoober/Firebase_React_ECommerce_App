@@ -9,7 +9,7 @@ import '../../styles/auth-styles.css';
 const Profile = () => {
   const { user } = useAuth();
   const [displayName, setDisplayName] = useState(user?.displayName || '');
-  const [email, setEmail] = useState(user?.email || '');
+  const [email] = useState(user?.email || '');
   const [address, setAddress] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -80,6 +80,8 @@ const Profile = () => {
       setError(error.message);
     }
   };
+  
+  void auth;
 
   return (
     <div className="form">
@@ -91,20 +93,24 @@ const Profile = () => {
         <fieldset className="fieldset">
         <legend className="legend">Profile</legend>
 
-          <input 
+          <input
+          className="input"
           type="text"
           value={displayName}
           placeholder="Name"
           onChange={(e) => setDisplayName(e.target.value)}
           />
 
-          <input type="text"
+          <input
+          className="input"
+          type="text"
           value={address}
           placeholder="Address"
           onChange={(e) => setAddress(e.target.value)}
           />
 
-          <input 
+          <input
+          className="input"
           type="email"
           value={email}
           placeholder="Email"
@@ -117,8 +123,8 @@ const Profile = () => {
         </button>
       </form>
 
-        {success && <p>{success}</p>}
-        {error && <p>{error}</p>}
+        {success && <p className="success">{success}</p>}
+        {error && <p className="error">{error}</p>}
 
         <div>
           <button className="deleteButton" onClick={handleDeleteAccount}>

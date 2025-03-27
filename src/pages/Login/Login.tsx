@@ -36,7 +36,7 @@ const Login = () => {
                 password
             );
             setSuccess("Login successful!");
-            navigate('/');
+            navigate('/profile');
         } catch (err: any) {
             setError(err.message);
         }
@@ -52,14 +52,16 @@ const Login = () => {
                 <fieldset className="fieldset">
                 <legend className="legend">Login</legend>
                     
-                    <input 
+                    <input
+                    className="input"
                     type="email"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     />
                     
-                    <input 
+                    <input
+                    className="input"
                     type="password"
                     placeholder="Password"
                     value={password}
@@ -68,9 +70,9 @@ const Login = () => {
 
                 </fieldset>
 
-                {error && <p className="error-message">{error}</p>}
-                {success && <p className="success-message">{success}</p>}
-                
+                {error && <p className="error">{error}</p>}
+                {success && <p className="success">{success}</p>}
+
                 <button type="submit" className="button">Login</button>
             </form>
         </div>

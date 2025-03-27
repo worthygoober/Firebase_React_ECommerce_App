@@ -18,8 +18,8 @@ const NavBar = () => {
       setError(null);
       try {
         await signOut(auth);
-        setSuccess('Logout successful')
-        navigate('/login')
+        setSuccess('Logout successful');
+        navigate('/login');
         setSuccess('');
       } catch (err: any) {
         setError(err.message);
@@ -48,8 +48,8 @@ const NavBar = () => {
         </div>
 
         <div className="nav-messages">
-          {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
+          {error && <p className="error">{error}</p>}
+          {success && <p className="success">{success}</p>}
         </div>
         <Link to='/cart' className="link">
           <FaShoppingCart className="cart-icon"/>
