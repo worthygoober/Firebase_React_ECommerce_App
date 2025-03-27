@@ -58,26 +58,26 @@ const productSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchProducts.pending, (state: any) => {
+            .addCase(fetchProducts.pending, (state: ProductState) => {
                 state.status = 'loading';
             })
-            .addCase(fetchProducts.fulfilled, (state: any, action) => {
+            .addCase(fetchProducts.fulfilled, (state: ProductState, action) => {
                 state.status = 'idle';
                 state.products = action.payload;
             })
-            .addCase(fetchProducts.rejected, (state: any) => {
+            .addCase(fetchProducts.rejected, (state: ProductState) => {
                 state.status = 'failed';
             })
-            .addCase(addProduct.fulfilled, (state: any, action) => {
+            .addCase(addProduct.fulfilled, (state: ProductState, action) => {
                 state.products.push(action.payload);
             })
-            .addCase(updateProduct.fulfilled, (state: any, action) => {
+            .addCase(updateProduct.fulfilled, (state: ProductState, action) => {
                 const index = state.products.findIndex((product: Product) => product.id === action.payload.id);
                 if (index != -1) {
                     state.products[index] = { ...state.products[index], ...action.payload };
                 };
             })
-            .addCase(deleteProduct.fulfilled, (state: any, action) => {
+            .addCase(deleteProduct.fulfilled, (state: ProductState, action) => {
                 state.products = state.products.filter((product: Product) => product.id !== action.payload);
             })
     },

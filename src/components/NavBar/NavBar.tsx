@@ -20,7 +20,7 @@ const NavBar = () => {
         await signOut(auth);
         setSuccess('Logout successful');
         navigate('/login');
-        setSuccess('');
+        setTimeout(() => setSuccess(''), 3000);
       } catch (err: any) {
         setError(err.message);
       }
