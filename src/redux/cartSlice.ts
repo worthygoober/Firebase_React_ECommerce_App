@@ -1,12 +1,8 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { collection, doc, getDoc, addDoc, updateDoc, deleteDoc, setDoc } from "firebase/firestore";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { doc, getDoc, deleteDoc, setDoc } from "firebase/firestore";
 import { db } from "../lib/firebase/firebase";
-import { Product } from "../types/types";
+import { CartItem } from "../types/types";
 import { RootState } from "./store";
-
-interface CartItem extends Product {
-    quantity: number;
-}
 
 interface CartState {
     items: CartItem[];
@@ -18,13 +14,13 @@ const initialState: CartState ={
     status: 'idle'
 };
 
-export const fetchCart = createAsyncThunk(
+export const fetchCart = createAsyncThunk<CartItem[], string>(
     'cart/fetchCart',
     async (userId, { rejectWithValue }) => {
         try {
             const cartSnap = await getDoc(doc(db, 'carts', userId));
             if (cartSnap.exists()) {
-                return cartSnap.data().items;
+                return cartSnap.data().items as CartItem[];
             }
             return [];
         } catch (error) {
@@ -33,15 +29,15 @@ export const fetchCart = createAsyncThunk(
     }
 );
 
-export const addToCart = createAsyncThunk(
+export const addToCart = createAsyncThunk<CartItem[], { userId: string; item: CartItem }>(
     'cart/addToCart',
-    async ({ userId, product }, { getState, rejectWithValue }) => {
+    async ({ userId, item }, { getState, rejectWithValue }) => {
         try {
             const state = getState() as RootState;
-            const existingItem = state.cart.items.find((item) => item.id === product.id);
+            const existingItem = state.cart.items.find((item) => item.id === item.id);
             const updatedCart = existingItem ?
-                state.cart.items.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1} : item
-                ) : ([...state.cart.items, { ...product, quantity: 1 }]);
+                state.cart.items.map((item) => item.id === item.id ? { ...item, quantity: item.quantity + 1} : item
+                ) : [...state.cart.items, { ...item, quantity: 1 }];
 
             await setDoc(doc(db, 'carts', userId), { items: updatedCart });
 
@@ -52,7 +48,7 @@ export const addToCart = createAsyncThunk(
     }
 );
 
-export const updateQuantity = createAsyncThunk(
+export const updateQuantity = createAsyncThunk<CartItem[], { userId: string; id: string; quantity: number }>(
     'cart/updateQuantity',
     async ({ userId, id, quantity}, { getState, rejectWithValue }) => {
         try {
@@ -64,12 +60,12 @@ export const updateQuantity = createAsyncThunk(
             
             return updatedCart;
         } catch (error) {
-            return rejectWithValue('Failed to update quanity');
+            return rejectWithValue('Failed to update quantity');
         }
     }
 );
 
-export const removeFromCart = createAsyncThunk(
+export const removeFromCart = createAsyncThunk<CartItem[], { userId: string; id: string }>(
     'cart/removeFromCart',
     async ({ userId, id }, { getState, rejectWithValue }) => {
         try {
@@ -85,9 +81,9 @@ export const removeFromCart = createAsyncThunk(
     }
 );
 
-export const clearCart = createAsyncThunk(
+export const clearCart = createAsyncThunk<void, { userId: string }>(
     'cart/clearCart',
-    async ( userId, { rejectWithValue }) => {
+    async ({ userId }, { rejectWithValue }) => {
         try {
             await deleteDoc(doc(db, 'carts', userId));
         } catch (error) {

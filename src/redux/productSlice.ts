@@ -26,8 +26,9 @@ export const fetchProducts = createAsyncThunk(
 export const addProduct = createAsyncThunk(
     'product/addProduct',
     async (newProduct: Product) => {
+        const { id: _, ...productData } = newProduct;
         const docRef = await addDoc(collection(db, 'products'), newProduct);
-        return { id: docRef.id, ...newProduct };
+        return { id: docRef.id, ...productData } as Product;
     }
 );
 

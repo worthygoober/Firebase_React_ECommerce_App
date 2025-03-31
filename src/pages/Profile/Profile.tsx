@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { updateProfile, deleteUser } from "firebase/auth";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc, deleteDoc, collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase/firebase";
 import { useNavigate } from "react-router-dom";
 import '../../styles/auth-styles.css';
+import { Order } from "../../types/types";
 
 const Profile = () => {
   const { user } = useAuth();
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [email] = useState(user?.email || '');
   const [address, setAddress] = useState('');
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [expandedOrder, setExpandedOrder] =  useState<string | null>(null);
+
   const [success, setSuccess] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -32,6 +36,29 @@ const Profile = () => {
       }
     };
     loadUserData();
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchOrders = async () => {
+      try {
+        const orderQuery = query(collection(db, 'orders'), where('userId', '==', user.uid));
+        const querySnapshot = await getDocs(orderQuery);
+
+        const fetchedOrders: Order[] = querySnapshot.docs.map((doc) => {
+          const data = doc.data() as Omit<Order, "id">;
+          return { id: doc.id, ...data };
+        });
+
+        setOrders(fetchedOrders);
+      } catch (error: any) {
+        setError(error.message);
+        console.error("Error fetching orders:", error);
+      }
+    };
+
+    fetchOrders();
   }, [user]);
 
   const handleUpdateProfile = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -127,6 +154,32 @@ const Profile = () => {
         {error && <p className="error">{error}</p>}
 
         <div>
+          <h2>Order History</h2>
+          {orders.length === 0 ? 
+          <p>No orders found.</p> : (
+            <ul>
+              {orders.map(order => (
+                <li key={order.id}>
+                  <button onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}>
+                    Order ID: {order.id} (Total: ${order.totalPrice.toFixed(2)})
+                  </button>
+                  {expandedOrder === order.id && (
+                    <div>
+                      <p>Placed on: {order.createdAt instanceof Timestamp ? order.createdAt.toDate().toLocaleString() : 'Unknown Date'}</p>
+                      <ul>
+                        {order.items.map(item => (
+                          <li key={item.id}>
+                            {item.title} - {item.quantity} x ${item.price}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+
           <button className="deleteButton" onClick={handleDeleteAccount}>
             Delete Account
           </button>

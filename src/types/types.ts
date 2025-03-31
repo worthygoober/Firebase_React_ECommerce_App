@@ -9,15 +9,36 @@ export interface User {
 }
 
 export interface Product {
-    id?: string;
+    id: string;
     title: string;
     price: number;
     description: string;
     category: string;
     image: string;
-    createAt: Timestamp | FieldValue;
-    updateAt: Timestamp | FieldValue;
+    createdAt: Timestamp | FieldValue;
+    updatedAt: Timestamp | FieldValue;
     quantity: number;
+}
+
+export interface Order {
+    id: string;
+    userId: string;
+    totalPrice: number;
+    createdAt: Timestamp | FieldValue;
+    items: { 
+        id: string;
+        title: string;
+        quantity: number;
+        price: number
+    }[];
+}
+
+export interface CartItem {
+    id: string;
+    title: string;
+    price: number;
+    quantity: number;
+    image: string;
 }
 
 export type Category = string;
