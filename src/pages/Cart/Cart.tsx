@@ -1,30 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { RootState, AppDispatch } from "../../redux/store";
 import { removeFromCart, updateQuantity, clearCart } from "../../redux/cartSlice";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
-import { db } from "../../lib/firebase/firebase";
-import { useAuth } from "../../context/AuthContext";
+import { db, auth } from "../../lib/firebase/firebase";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { CartItem } from "../../types/types";
 import './Cart.css';
 
 const Cart = () => {
     const cartItems = useSelector((state: RootState) => state.cart.items);
     const dispatch: AppDispatch = useDispatch();
-    const { user } = useAuth();
+    const navigate = useNavigate();
+    const [user, setUser] = useState<User | null>(null);
     
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState('');
 
     const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
     const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setUser(user);
+        if (!user) {
+          navigate('/login');
+        }
+      });
+      return () => unsubscribe();
+    }, [navigate]);
 
     const handleCheckout = async () => {
       if (!user) {
-        setError('You must be logged in to checkout');
+        setError('Oops! You must logged in to checkout')
         return;
       }
-
       try{
         const orderData = {
           userId: user.uid,
@@ -45,6 +56,7 @@ const Cart = () => {
 
         setSuccess('Order Placed successfully. Thank you and please shop with us again.');
         setError(null);
+        setTimeout(() => setSuccess(''), 3000);
       } catch (error: any) {
         setError(error.message);
         console.error('Checkout error:', error);
@@ -52,19 +64,12 @@ const Cart = () => {
     };
 
     const handleRemoveItem = (id: string) => {
-      if (!user) {
-          setError('You must be logged in to modify your cart');
-          return;
-      }
+      if (!user) return;
       dispatch(removeFromCart({ userId: user.uid, id }));
   };
 
   const handleQuantityChange = (id: string, value: string) => {
-    if (!user) {
-        setError('You must be logged in to modify your cart');
-        return;
-    }
-
+    if (!user) return;
     const quantity = Math.max(1, parseInt(value) || 1);
     dispatch(updateQuantity({ userId: user.uid, id, quantity }));
 };

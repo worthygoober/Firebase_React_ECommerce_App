@@ -29,7 +29,7 @@ const Home: React.FC = () => {
       }
     });
     return () => unsubscribe();
-  }, [navigate]); // checks for change in authentication, which means if the user has logged in or out. if they have, it will redirect to login page. consider putting on every page?
+  }, [navigate]);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'products'), (snapshot) => {
@@ -53,7 +53,7 @@ const Home: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProduct.title || !newProduct.image || newProduct.price <= 0 || !newProduct.category || !newProduct.description) {
-      alert('Please fill out all the required fields'); // change to popups Allan shared
+      setError('Please fill out all the required fields');
       return;
     }
     
@@ -71,6 +71,7 @@ const Home: React.FC = () => {
           updatedAt: serverTimestamp()
         });
         setSuccess('Product successfully added');
+        setTimeout(() => setSuccess(''), 3000);
       }
       setNewProduct({ 
         title: '',
@@ -101,7 +102,8 @@ const Home: React.FC = () => {
   const handleDelete = async (productId: string) => {
     try {
       await deleteDoc(doc(db, 'products', productId));
-      setSuccess('Product deleted successfully.')
+      setSuccess('Product deleted successfully.');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (err: any) {
       setError(err.message);
     }

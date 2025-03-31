@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { updateProfile, deleteUser } from "firebase/auth";
 import { doc, getDoc, updateDoc, deleteDoc, collection, query, where, getDocs, Timestamp } from "firebase/firestore";
 import { auth, db } from "../../lib/firebase/firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import '../../styles/auth-styles.css';
 import { Order } from "../../types/types";
@@ -19,6 +20,15 @@ const Profile = () => {
   const [error, setError] = useState<string | null>(null);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate('/login');
+      }
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -82,7 +92,8 @@ const Profile = () => {
         updatedAt: new Date()
       });
 
-      setSuccess('Profile updated successfully')
+      setSuccess('Profile updated successfully');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (error: any) {
       setError(error.message);
     }
@@ -103,6 +114,7 @@ const Profile = () => {
 
       setSuccess('Account deleted successfully');
       navigate('/register');
+      setTimeout(() => setSuccess(''), 3000);
     } catch (error: any) {
       setError(error.message);
     }

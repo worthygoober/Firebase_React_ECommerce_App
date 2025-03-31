@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { signInWithEmailAndPassword} from "firebase/auth";
 import { auth } from "../../lib/firebase/firebase";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import '../../styles/auth-styles.css';
 
 
@@ -74,6 +74,7 @@ const Login = () => {
                 {success && <p className="success">{success}</p>}
 
                 <button type="submit" className="button">Login</button>
+                <Link to='/register' className="button">New Users</Link>
             </form>
         </div>
     </>
