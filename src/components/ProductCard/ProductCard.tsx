@@ -1,4 +1,4 @@
-import { Product } from "../../types/types";
+import { CartItem, Product } from "../../types/types";
 import './ProductCard.css';
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../redux/cartSlice";
@@ -7,13 +7,13 @@ import { AppDispatch } from "../../redux/store";
 
 const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
     const dispatch = useDispatch<AppDispatch>();
+    const {user} = useAuth();
 
     // Handle adding product to cart
     const handleAddToCart = () => {
-        const {user} = useAuth();
-
+        const item: CartItem = {...product, quantity: 1 };
         if (user) {
-            dispatch(addToCart({ userId: user.uid, product }));
+            dispatch(addToCart({ userId: user.uid, item }));
         } else {
             alert("You must be logged in to add items to the cart.");
         }

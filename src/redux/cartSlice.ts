@@ -34,9 +34,9 @@ export const addToCart = createAsyncThunk<CartItem[], { userId: string; item: Ca
     async ({ userId, item }, { getState, rejectWithValue }) => {
         try {
             const state = getState() as RootState;
-            const existingItem = state.cart.items.find((item) => item.id === item.id);
+            const existingItem = state.cart.items.find((i) => i.id === item.id);
             const updatedCart = existingItem ?
-                state.cart.items.map((item) => item.id === item.id ? { ...item, quantity: item.quantity + 1} : item
+                state.cart.items.map((i) => i.id === item.id ? { ...i, quantity: i.quantity + 1} : i
                 ) : [...state.cart.items, { ...item, quantity: 1 }];
 
             await setDoc(doc(db, 'carts', userId), { items: updatedCart });
